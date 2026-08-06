@@ -47,3 +47,4 @@ Esta é uma roleta **puramente visual/aleatória no navegador de cada pessoa** �
 - Registrar o resultado sorteado para conferência na hora da retirada do prêmio.
 
 Posso ajudar a implementar isso com um pequeno backend (ex: Google Sheets API ou Firebase) se for do seu interesse.
+Teste
