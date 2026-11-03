@@ -364,6 +364,13 @@ const cx = W/2, cy = H/2, radius = W/2 - 6;
 const n = prizes.length;
 const arc = (Math.PI*2)/n;
 
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+// Prêmio bloqueado = tem "blockedUntil" e a data de hoje ainda não passou dessa data.
+function isBlocked(p){ return !!p.blockedUntil && todayStr() <= p.blockedUntil; }
+
 function textColorFor(bg){
   return (bg === "#B8CB2E" || bg === "#C9A227") ? "#241B12" : "#F6EFD8";
 }
@@ -446,7 +453,8 @@ function drawWheel(){
 
     const outerX = radius - 34;
     const innerLimitX = radius * 0.46; // keep clear of the hub + its shadow rings
-    const fit = fitLabel(ctx, prizes[i].label, arc, outerX, innerLimitX);
+    const shownLabel = (isBlocked(prizes[i]) ? "* " : "") + prizes[i].label;
+    const fit = fitLabel(ctx, shownLabel, arc, outerX, innerLimitX);
     ctx.font = `800 ${fit.fontSize}px Poppins, sans-serif`;
     fit.lines.forEach((line, idx) => {
       const yOff = (idx - (fit.lines.length - 1) / 2) * fit.lineGap;
@@ -468,10 +476,8 @@ function spin(){
   spinning = true;
   spinBtn.disabled = true;
 
-  // Prêmios com "blockedUntil" não podem ser sorteados até essa data (inclusive).
-  const now = new Date();
-  const todayStr = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0");
-  const eligible = prizes.map((p,i)=>i).filter(i => !prizes[i].blockedUntil || todayStr > prizes[i].blockedUntil);
+  // Prêmios bloqueados (marcados com * na roda) não entram no sorteio.
+  const eligible = prizes.map((p,i)=>i).filter(i => !isBlocked(prizes[i]));
   const winnerIndex = eligible[Math.floor(Math.random()*eligible.length)];
   // angle (in degrees) of the middle of the winning segment, measured from top (12 o'clock), clockwise
   const segMidDeg = (winnerIndex*arc + arc/2) * (180/Math.PI);
